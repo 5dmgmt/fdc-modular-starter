@@ -26,7 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### 概要
 
 foundersdirect をベースにしたミニマルスターターの初期リリース。
-Next.js 15 + React 19 + TypeScript 構成で、SaaS版と同じアーキテクチャパターンを使用。
+Next.js 16 + React 19 + TypeScript 構成で、SaaS版と同じアーキテクチャパターンを使用。
 
 ### Added
 

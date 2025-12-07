@@ -18,7 +18,7 @@ FDC Modular Starter は、SaaS版 Founders Direct Cockpit（foundersdirect）の
 |------|-----|
 | **バージョン** | v1.0.0 |
 | **対応Node.js** | 22.x |
-| **フレームワーク** | Next.js 15 + React 19 |
+| **フレームワーク** | Next.js 16 + React 19 |
 | **言語** | TypeScript 5.x (strict mode) |
 
 ### SaaS版との関係

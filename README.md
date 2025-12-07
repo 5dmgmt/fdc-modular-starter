@@ -6,7 +6,7 @@ Founders Direct Cockpit の学習用ミニマルスターターキットです�
 
 | カテゴリ | 技術 |
 |---------|------|
-| フレームワーク | Next.js 15 + App Router |
+| フレームワーク | Next.js 16 + App Router |
 | UI | React 19 |
 | 言語 | TypeScript 5.x (strict mode) |
 | Node.js | 22.x |

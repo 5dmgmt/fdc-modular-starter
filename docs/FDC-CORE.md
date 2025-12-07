@@ -11,7 +11,7 @@
 
 **📊 現在の開発状況（2025-12-06）**:
 - **バージョン**: v1.0.0
-- **フロントエンド構成**: Next.js 15.1.0 + App Router + React 19.0.0
+- **フロントエンド構成**: Next.js 16.0.7 + App Router + React 19.2.1
 - **TypeScript**: 5.7.2（strict mode）
 - **Node.js**: 22.x
 - **データ永続化**: localStorage（学習用）
