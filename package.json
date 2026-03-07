@@ -11,19 +11,19 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "lucide-react": "^0.468.0",
+    "lucide-react": "^0.576.0",
     "next": "^16.1.6",
-    "react": "^19.2.1",
-    "react-dom": "^19.2.1",
-    "resend": "^4.8.0"
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "resend": "^6.9.3"
   },
   "devDependencies": {
-    "@types/node": "^22.10.2",
-    "@types/react": "^19.2.0",
-    "@types/react-dom": "^19.2.0",
-    "eslint": "^9.28.0",
-    "eslint-config-next": "16.0.10",
-    "typescript": "^5.7.2"
+    "@types/node": "^25.3.3",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "eslint": "^10.0.2",
+    "eslint-config-next": "16.1.6",
+    "typescript": "^5.9.3"
   },
   "engines": {
     "node": ">=18.18.0"
