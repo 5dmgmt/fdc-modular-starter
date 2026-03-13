@@ -1,7 +1,7 @@
 /**
  * app/_components/mvv/UnifiedMVVTab.tsx
  *
- * Phase 14.35: 統合MVVタブコンポーネント
+ * Phase 14.35: 統合MVVタブコンポーネント（※Workshop Phase 17: MVV統合タブ）
  * 979行 → 約75行 (92%削減)
  *
  * 【機能】

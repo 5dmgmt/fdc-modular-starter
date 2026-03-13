@@ -1,7 +1,7 @@
 /**
  * app/_components/mvv/unified-mvv/BrandSectionContent.tsx
  *
- * Phase 14.35: ブランド指針セクションコンポーネント
+ * Phase 14.35: ブランド指針セクションコンポーネント（※Workshop Phase 15: Brand設定）
  * 10要素版ブランドガイドライン対応
  */
 

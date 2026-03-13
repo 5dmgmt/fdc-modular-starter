@@ -1,9 +1,9 @@
 /**
  * app/api/workspaces/[workspaceId]/data/handlers/validation.ts
  *
- * Phase 14.6.4: バリデーション・認可処理
- * Phase 14.6.7: E2E テストモードセキュリティ強化
- * Phase 15.1: Super Tenant Mode（DEV環境）対応
+ * Phase 14.6.4: バリデーション・認可処理（※Workshop Phase 20: セキュリティ強化）
+ * Phase 14.6.7: E2E テストモードセキュリティ強化（※Workshop Phase 20: セキュリティ強化）
+ * Phase 15.1: Super Tenant Mode（DEV環境）対応（※Workshop Phase 20: セキュリティ強化）
  */
 
 import { NextRequest, NextResponse } from 'next/server';

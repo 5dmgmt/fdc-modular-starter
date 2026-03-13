@@ -1,8 +1,8 @@
 /**
  * app/_components/admin/AdminTab.tsx
  *
- * Phase 9.92-12: 管理者設定タブの React 実装
- * Phase 14.35: コンポーネント分割（1792行 → 約200行）
+ * Phase 9.92-12: 管理者設定タブの React 実装（※Workshop Phase 18: Admin設定）
+ * Phase 14.35: コンポーネント分割（1792行 → 約200行）（※Workshop Phase 18: Admin設定）
  *
  * 【責務】
  * - 管理者情報の表示

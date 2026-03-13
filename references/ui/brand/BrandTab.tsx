@@ -1,7 +1,7 @@
 /**
  * app/_components/brand/BrandTab.tsx
  *
- * Phase 9.92-D: ブランド指針タブの React 実装
+ * Phase 9.92-D: ブランド指針タブの React 実装（※Workshop Phase 15: Brand設定）
  *
  * 【責務】
  * - プロフィール（bio, x, facebook, note, instagram）の表示・編集

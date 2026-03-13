@@ -2,8 +2,8 @@
  * app/api/google/tasks/route.ts
  *
  * Google Tasks API エンドポイント
- * 【Phase 14.9-B】レート制限追加
- * 【Phase 15-A】リフレッシュトークンの鍵バージョン管理対応
+ * 【Phase 14.9-B】レート制限追加（※Workshop Phase 14: Google Tasks連携）
+ * 【Phase 15-A】リフレッシュトークンの鍵バージョン管理対応（※Workshop Phase 14: Google Tasks連携）
  *
  * 【機能】
  * - GET: タスクリスト一覧を取得

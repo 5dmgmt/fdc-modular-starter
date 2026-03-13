@@ -206,7 +206,7 @@ export function groupTasksBySuit(tasks: Task[]): Record<Suit, Task[]> {
  * - club（青）→ 🟦
  */
 export const SUIT_EMOJI: Record<Suit, string> = {
-  spade: '⬛',
+  spade: '⬛️',
   heart: '🟥',
   diamond: '🟨',
   club: '🟦',
