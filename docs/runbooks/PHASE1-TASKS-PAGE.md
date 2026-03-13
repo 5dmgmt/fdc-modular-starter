@@ -469,11 +469,24 @@ export default function TasksPage() {
 
 ### 5.1 app/(app)/layout.tsx の NAV_ITEMS を更新
 
+lucide-react の import に `CheckSquare` を追加:
+
 ```typescript
-const NAV_ITEMS = [
-  { href: '/dashboard', label: 'ダッシュボード' },
-  { href: '/tasks', label: 'タスク' },
-  // Phase 2 で追加: { href: '/settings', label: '設定' },
+import {
+  LayoutDashboard,
+  CheckSquare,
+  LogOut,
+  type LucideIcon,
+} from 'lucide-react';
+```
+
+NAV_ITEMS にタスクを追加:
+
+```typescript
+const NAV_ITEMS: NavItem[] = [
+  { href: '/dashboard', label: 'ダッシュボード', icon: LayoutDashboard },
+  { href: '/tasks', label: 'タスク', icon: CheckSquare },
+  // Phase 2 で追加: { href: '/settings', label: '設定', icon: Settings },
 ];
 ```
 

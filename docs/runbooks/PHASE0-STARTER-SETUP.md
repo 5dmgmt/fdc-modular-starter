@@ -186,9 +186,11 @@ next-env.d.ts
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules", "references"]
 }
 ```
+
+> **注意**: `references/` ディレクトリには SaaS版の参照コードが含まれており、未インストールのパッケージを import しています。`exclude` に含めないと `npm run type-check` で大量のエラーが出ます。
 
 ---
 
@@ -270,8 +272,8 @@ NEXT_PUBLIC_APP_VERSION=1.0.0
 /**
  * lib/types/index.ts
  *
- * 型定義（ミニマルスターター版）
- * SaaS版と同じ構造を維持
+ * 型定義（Phase 0: 最小限）
+ * Phase 1 で Task, AppData を追加します
  */
 
 // ユーザー情報
@@ -281,33 +283,10 @@ export interface User {
   name: string;
 }
 
-// ダッシュボード統計
-export interface DashboardStats {
-  taskCount: number;
-  completedCount: number;
-  progressRate: number;
-}
-
-// タスク
-export interface Task {
-  id: string;
-  title: string;
-  completed: boolean;
-  createdAt: string;
-}
-
-// アプリケーションデータ
-export interface AppData {
-  version: string;
-  tasks: Task[];
-  lastUpdated: string;
-}
-
-export const DEFAULT_APP_DATA: AppData = {
-  version: '1.0.0',
-  tasks: [],
-  lastUpdated: new Date().toISOString(),
-};
+// Phase 1 で追加:
+// export interface Task { ... }
+// export interface AppData { ... }
+// export const DEFAULT_APP_DATA: AppData = { ... }
 ```
 
 ### 7.2 認証コンテキスト
@@ -364,108 +343,10 @@ export function useAuth() {
 }
 ```
 
-### 7.3 データコンテキスト
+### 7.3 データコンテキスト（Phase 1 で作成）
 
-`lib/contexts/DataContext.tsx` を作成:
-
-```typescript
-'use client';
-
-/**
- * lib/contexts/DataContext.tsx
- *
- * データコンテキスト（ミニマルスターター版）
- * localStorage でデータを永続化
- */
-
-import {
-  createContext,
-  useContext,
-  useReducer,
-  useEffect,
-  type ReactNode,
-  type Dispatch,
-} from 'react';
-import { AppData, Task, DEFAULT_APP_DATA } from '@/lib/types';
-
-const STORAGE_KEY = 'fdc_app_data';
-
-// Action Types
-type Action =
-  | { type: 'SET_DATA'; payload: AppData }
-  | { type: 'ADD_TASK'; payload: Task }
-  | { type: 'TOGGLE_TASK'; payload: string }
-  | { type: 'DELETE_TASK'; payload: string };
-
-// Reducer
-function dataReducer(state: AppData, action: Action): AppData {
-  switch (action.type) {
-    case 'SET_DATA':
-      return action.payload;
-    case 'ADD_TASK':
-      return { ...state, tasks: [...state.tasks, action.payload] };
-    case 'TOGGLE_TASK':
-      return {
-        ...state,
-        tasks: state.tasks.map((t) =>
-          t.id === action.payload ? { ...t, completed: !t.completed } : t
-        ),
-      };
-    case 'DELETE_TASK':
-      return {
-        ...state,
-        tasks: state.tasks.filter((t) => t.id !== action.payload),
-      };
-    default:
-      return state;
-  }
-}
-
-// Context
-interface DataContextType {
-  data: AppData;
-  dispatch: Dispatch<Action>;
-}
-
-const DataContext = createContext<DataContextType | undefined>(undefined);
-
-export function DataProvider({ children }: { children: ReactNode }) {
-  const [data, dispatch] = useReducer(dataReducer, DEFAULT_APP_DATA);
-
-  // 初期読み込み
-  useEffect(() => {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) {
-      try {
-        const parsed = JSON.parse(stored) as AppData;
-        dispatch({ type: 'SET_DATA', payload: parsed });
-      } catch (e) {
-        console.error('Failed to parse stored data:', e);
-      }
-    }
-  }, []);
-
-  // 変更時に保存
-  useEffect(() => {
-    const toSave = { ...data, lastUpdated: new Date().toISOString() };
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
-  }, [data]);
-
-  return (
-    <DataContext.Provider value={{ data, dispatch }}>
-      {children}
-    </DataContext.Provider>
-  );
-}
-
-export function useData() {
-  const context = useContext(DataContext);
-  if (context === undefined) {
-    throw new Error('useData must be used within a DataProvider');
-  }
-  return context;
-}
-```
+> **注意**: DataContext は Phase 0 では作成しません。Phase 1 でタスク機能と合わせて作成します。
+> `lib/contexts/DataContext.tsx` → Phase 1 のランブックを参照してください。
 
 ### 7.4 グローバルスタイル
 
@@ -800,72 +681,101 @@ export default function Home() {
 /**
  * app/login/page.tsx
  *
- * ログインページ（デモ認証）
- * パスワード: fdc
+ * ログインページ（ミニマルスターター版）
+ * SaaS版と同じUI・デザインを使用
+ * デモ用: パスワード = "fdc"
  */
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { Lock, LogIn, Rocket } from 'lucide-react';
 
 export default function LoginPage() {
   const router = useRouter();
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    // デモ認証（パスワード: fdc）
+  const handleLogin = async () => {
+    setIsLoading(true);
+    // デモ用認証
     if (password === 'fdc') {
-      // セッションを localStorage に保存
-      const session = {
-        user: {
-          id: 'demo-user',
-          email: 'demo@example.com',
-          name: 'デモユーザー',
-        },
+      // セッションをlocalStorageに保存
+      localStorage.setItem('fdc_session', JSON.stringify({
+        user: { id: '1', email: 'demo@example.com', name: 'Demo User' },
         loggedInAt: new Date().toISOString(),
-      };
-      localStorage.setItem('fdc_session', JSON.stringify(session));
+      }));
+      // 少し遅延を入れてUIを見せる
+      await new Promise(resolve => setTimeout(resolve, 300));
       router.push('/dashboard');
     } else {
-      setError('パスワードが正しくありません');
+      setError('パスワードが違います');
+      setIsLoading(false);
     }
   };
 
   return (
     <div className="login-container">
       <div className="login-card">
+        <div style={{ marginBottom: '24px' }}>
+          <Rocket
+            size={48}
+            style={{
+              color: 'var(--primary)',
+              marginBottom: '16px',
+            }}
+          />
+        </div>
+
         <h1>FDC Modular</h1>
-        <p>Founders Direct Cockpit</p>
+        <p>Founders Direct Cockpit - 学習用スターター</p>
 
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => {
-                setPassword(e.target.value);
-                setError('');
-              }}
-              placeholder="パスワードを入力"
-              style={{ textAlign: 'center' }}
-            />
+        <div className="form-group" style={{ textAlign: 'left' }}>
+          <label style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <Lock size={14} />
+            パスワード
+          </label>
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => {
+              setPassword(e.target.value);
+              setError('');
+            }}
+            onKeyDown={(e) => e.key === 'Enter' && handleLogin()}
+            placeholder="パスワードを入力"
+            disabled={isLoading}
+          />
+        </div>
+
+        {error && (
+          <div
+            className="alert alert-error"
+            style={{ marginBottom: '16px', textAlign: 'left' }}
+          >
+            {error}
           </div>
+        )}
 
-          {error && (
-            <div style={{ color: 'var(--danger)', marginBottom: '16px', fontSize: '14px' }}>
-              {error}
-            </div>
-          )}
+        <button
+          className="btn btn-primary"
+          style={{ width: '100%' }}
+          onClick={handleLogin}
+          disabled={isLoading}
+        >
+          <LogIn size={18} />
+          {isLoading ? 'ログイン中...' : 'ログイン'}
+        </button>
 
-          <button type="submit" className="btn btn-primary" style={{ width: '100%' }}>
-            ログイン
-          </button>
-        </form>
-
-        <p style={{ marginTop: '24px', fontSize: '12px', color: 'var(--text-muted)' }}>
-          デモパスワード: <code>fdc</code>
+        <p style={{
+          marginTop: '24px',
+          fontSize: '12px',
+          color: 'var(--text-muted)',
+          background: 'var(--bg-gray)',
+          padding: '12px',
+          borderRadius: '8px',
+        }}>
+          デモ用パスワード: <code style={{ fontWeight: 600 }}>fdc</code>
         </p>
       </div>
     </div>
@@ -883,19 +793,30 @@ export default function LoginPage() {
 /**
  * app/(app)/layout.tsx
  *
- * 認証済みユーザー用レイアウト（ミニマルスターター版）
- * SaaS版と同じ構造を使用
+ * 認証済みユーザー用レイアウト（Phase 0: 認証のみ）
+ * Phase 1 で DataProvider を追加します
  */
 
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { AuthProvider, type AuthUser } from '@/lib/contexts/AuthContext';
-import { DataProvider } from '@/lib/contexts/DataContext';
+// Phase 1 で追加: import { DataProvider } from '@/lib/contexts/DataContext';
+import {
+  LayoutDashboard,
+  LogOut,
+  type LucideIcon,
+} from 'lucide-react';
 
-const NAV_ITEMS = [
-  { href: '/dashboard', label: 'ダッシュボード' },
-  // ランブックで追加: { href: '/tasks', label: 'タスク' },
-  // ランブックで追加: { href: '/settings', label: '設定' },
+interface NavItem {
+  href: string;
+  label: string;
+  icon: LucideIcon;
+}
+
+const NAV_ITEMS: NavItem[] = [
+  { href: '/dashboard', label: 'ダッシュボード', icon: LayoutDashboard },
+  // ランブックで追加: { href: '/tasks', label: 'タスク', icon: CheckSquare },
+  // ランブックで追加: { href: '/settings', label: '設定', icon: Settings },
 ];
 
 export default function AppLayout({
@@ -911,7 +832,7 @@ export default function AppLayout({
   const checkAuth = useCallback(() => {
     const session = localStorage.getItem('fdc_session');
     if (!session) {
-      router.push('/login');
+      setLoading(false);
       return;
     }
 
@@ -919,11 +840,11 @@ export default function AppLayout({
       const parsed = JSON.parse(session);
       setUser(parsed.user);
     } catch {
-      router.push('/login');
+      setLoading(false);
     } finally {
       setLoading(false);
     }
-  }, [router]);
+  }, []);
 
   useEffect(() => {
     checkAuth();
@@ -948,42 +869,48 @@ export default function AppLayout({
 
   return (
     <AuthProvider user={user} loading={loading}>
-      <DataProvider>
-        {/* ヘッダー */}
-        <header className="header">
-          <h1>FDC Modular</h1>
-          <div style={{ flex: 1 }} />
-          <span style={{ fontSize: '14px', marginRight: '16px' }}>
-            {user.name || user.email}
-          </span>
-          <button className="btn btn-secondary btn-small" onClick={handleLogout}>
-            ログアウト
-          </button>
-        </header>
+      {/* Phase 1 で DataProvider でラップ */}
+      {/* ヘッダー */}
+      <header className="header">
+        <h1>FDC Modular</h1>
+        <div style={{ flex: 1 }} />
+        <span style={{ fontSize: '14px', marginRight: '16px' }}>
+          {user.name || user.email}
+        </span>
+        <button className="btn btn-secondary btn-small" onClick={handleLogout}>
+          <LogOut size={16} />
+          ログアウト
+        </button>
+      </header>
 
-        {/* ナビゲーション */}
-        <nav className="nav">
-          <ul className="nav-list">
-            {NAV_ITEMS.map((item) => (
+      {/* タブナビゲーション */}
+      <nav className="nav">
+        <ul className="nav-list">
+          {NAV_ITEMS.map((item) => {
+            const Icon = item.icon;
+            return (
               <li key={item.href}>
                 <a
                   href={item.href}
                   className={`nav-link ${pathname === item.href ? 'active' : ''}`}
                 >
+                  <Icon size={20} />
                   {item.label}
                 </a>
               </li>
-            ))}
-          </ul>
-        </nav>
+            );
+          })}
+        </ul>
+      </nav>
 
-        {/* メインコンテンツ */}
-        <main className="main">{children}</main>
-      </DataProvider>
+      {/* メインコンテンツ */}
+      <main className="main">{children}</main>
     </AuthProvider>
   );
 }
 ```
+
+> **注意**: Phase 0 では `DataProvider` は使用しません。Phase 1 でタスク機能追加時に `DataProvider` でラップします。
 
 ### 7.9 ダッシュボードページ
 
@@ -995,123 +922,81 @@ export default function AppLayout({
 /**
  * app/(app)/dashboard/page.tsx
  *
- * ダッシュボードページ
+ * ダッシュボードページ（Phase 0: 空ダッシュボード）
+ * Phase 1 でタスク機能を追加します
  */
 
-import { useState } from 'react';
-import { useData } from '@/lib/contexts/DataContext';
-import type { Task } from '@/lib/types';
+import { Rocket, ArrowRight, CheckSquare, Settings, Database } from 'lucide-react';
 
 export default function DashboardPage() {
-  const { data, dispatch } = useData();
-  const [newTaskTitle, setNewTaskTitle] = useState('');
-
-  // 統計計算
-  const stats = {
-    taskCount: data.tasks.length,
-    completedCount: data.tasks.filter((t) => t.completed).length,
-    progressRate:
-      data.tasks.length > 0
-        ? Math.round(
-            (data.tasks.filter((t) => t.completed).length / data.tasks.length) * 100
-          )
-        : 0,
-  };
-
-  // タスク追加
-  const handleAddTask = () => {
-    if (!newTaskTitle.trim()) return;
-
-    const newTask: Task = {
-      id: `${Date.now()}`,
-      title: newTaskTitle.trim(),
-      completed: false,
-      createdAt: new Date().toISOString(),
-    };
-
-    dispatch({ type: 'ADD_TASK', payload: newTask });
-    setNewTaskTitle('');
-  };
-
   return (
     <div>
-      <h2 style={{ marginBottom: '24px' }}>ダッシュボード</h2>
+      {/* ウェルカムカード */}
+      <div className="card" style={{ textAlign: 'center', padding: '48px 32px' }}>
+        <Rocket size={64} style={{ color: 'var(--primary)', marginBottom: '24px' }} />
 
-      {/* 統計 */}
-      <div className="stats-grid">
-        <div className="stat-card">
-          <div className="stat-value">{stats.taskCount}</div>
-          <div className="stat-label">タスク数</div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-value">{stats.completedCount}</div>
-          <div className="stat-label">完了</div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-value">{stats.progressRate}%</div>
-          <div className="stat-label">進捗率</div>
-        </div>
-      </div>
+        <h2 style={{ fontSize: '28px', fontWeight: 700, marginBottom: '16px' }}>
+          FDC Modular Starter へようこそ！
+        </h2>
 
-      {/* タスク追加 */}
-      <div className="card">
-        <h3 className="card-title">クイックタスク追加</h3>
-        <div style={{ display: 'flex', gap: '8px' }}>
-          <input
-            type="text"
-            value={newTaskTitle}
-            onChange={(e) => setNewTaskTitle(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && handleAddTask()}
-            placeholder="新しいタスクを入力..."
-            style={{
-              flex: 1,
-              padding: '12px',
-              border: '1px solid var(--border)',
-              borderRadius: 'var(--radius)',
-              fontSize: '16px',
-            }}
-          />
-          <button className="btn btn-primary" onClick={handleAddTask}>
-            追加
-          </button>
-        </div>
-      </div>
+        <p style={{ color: 'var(--text-muted)', fontSize: '16px', marginBottom: '32px' }}>
+          このダッシュボードは Phase 0 の初期状態です。<br />
+          各 Phase を進めることで機能が追加されていきます。
+        </p>
 
-      {/* タスク一覧 */}
-      <div className="card">
-        <h3 className="card-title">最近のタスク</h3>
-        {data.tasks.length > 0 ? (
-          <ul className="task-list">
-            {data.tasks.slice(0, 5).map((task) => (
-              <li key={task.id} className="task-item">
-                <input
-                  type="checkbox"
-                  className="task-checkbox"
-                  checked={task.completed}
-                  onChange={() => dispatch({ type: 'TOGGLE_TASK', payload: task.id })}
-                />
-                <span className={`task-title ${task.completed ? 'completed' : ''}`}>
-                  {task.title}
-                </span>
-                <button
-                  className="task-delete"
-                  onClick={() => dispatch({ type: 'DELETE_TASK', payload: task.id })}
-                >
-                  削除
-                </button>
-              </li>
-            ))}
+        {/* 次のステップ */}
+        <div style={{
+          background: 'var(--background)',
+          borderRadius: '12px',
+          padding: '24px',
+          textAlign: 'left',
+          maxWidth: '400px',
+          margin: '0 auto',
+        }}>
+          <h3 style={{ fontSize: '14px', fontWeight: 600, marginBottom: '16px' }}>
+            次のステップ
+          </h3>
+          <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <li style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <CheckSquare size={18} style={{ color: 'var(--primary)' }} />
+              <span style={{ fontSize: '14px' }}>Phase 1: タスク機能を追加</span>
+              <ArrowRight size={14} style={{ color: 'var(--text-muted)', marginLeft: 'auto' }} />
+            </li>
+            <li style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <Settings size={18} style={{ color: 'var(--primary)' }} />
+              <span style={{ fontSize: '14px' }}>Phase 2: 設定ページを追加</span>
+              <ArrowRight size={14} style={{ color: 'var(--text-muted)', marginLeft: 'auto' }} />
+            </li>
+            <li style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <Database size={18} style={{ color: 'var(--primary)' }} />
+              <span style={{ fontSize: '14px' }}>Phase 3: Supabase 統合</span>
+              <ArrowRight size={14} style={{ color: 'var(--text-muted)', marginLeft: 'auto' }} />
+            </li>
           </ul>
-        ) : (
-          <div className="empty-state">
-            タスクがありません。上のフォームから追加してください。
-          </div>
-        )}
+        </div>
+      </div>
+
+      {/* Coming Soon カード */}
+      <div className="stats-grid" style={{ marginTop: '24px' }}>
+        <div className="stat-card" style={{ opacity: 0.6 }}>
+          <div className="stat-value">&mdash;</div>
+          <div className="stat-label">タスク数（Phase 1）</div>
+        </div>
+        <div className="stat-card" style={{ opacity: 0.6 }}>
+          <div className="stat-value">&mdash;</div>
+          <div className="stat-label">完了数（Phase 1）</div>
+        </div>
+        <div className="stat-card" style={{ opacity: 0.6 }}>
+          <div className="stat-value">&mdash;</div>
+          <div className="stat-label">進捗率（Phase 1）</div>
+        </div>
       </div>
     </div>
   );
 }
 ```
+
+> **注意**: Phase 0 のダッシュボードはタスク機能を含みません。「ようこそ」画面と次のステップ案内のみです。タスクの追加・完了・削除は Phase 1 で実装します。
 
 ---
 
@@ -1201,8 +1086,7 @@ npm run dev
 1. http://localhost:3000 にアクセス
 2. ログインページが表示される
 3. パスワード `fdc` でログイン
-4. ダッシュボードが表示される
-5. タスクの追加・完了・削除が動作する
+4. ダッシュボードに「ようこそ」画面と次のステップ案内が表示される
 
 ### 10.4 プロダクションビルド
 
@@ -1230,11 +1114,10 @@ git add .
 # 初回コミット
 git commit -m "Phase 0: FDC Modular Starter 初期構築
 
-- Next.js 16.1.0 + React 19.0.0 + TypeScript 5.7.2
+- Next.js 16 + React 19 + TypeScript 5.x
 - ログインページ（デモ認証）
-- ダッシュボード（タスク管理）
-- AuthContext / DataContext
-- localStorage 永続化
+- ダッシュボード（ようこそ画面）
+- AuthContext（認証コンテキスト）
 
 🤖 Generated with Claude Code"
 ```
@@ -1253,8 +1136,7 @@ git commit -m "Phase 0: FDC Modular Starter 初期構築
 - [ ] `npm run build` が成功する
 - [ ] http://localhost:3000 でログインページが表示される
 - [ ] パスワード `fdc` でログインできる
-- [ ] ダッシュボードでタスクを追加・完了・削除できる
-- [ ] データがリロード後も永続化される
+- [ ] ダッシュボードに「ようこそ」画面が表示される
 - [ ] 初回コミットが完了している
 
 ---

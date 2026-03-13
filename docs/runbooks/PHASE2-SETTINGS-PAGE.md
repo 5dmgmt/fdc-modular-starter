@@ -44,20 +44,16 @@ npm run build
 
 ### 1.1 現在の状態確認
 
-`lib/types/index.ts` の現在の内容:
+`lib/types/index.ts` の現在の内容（Phase 1 完了時点）:
 
 ```typescript
-// 現在の AppData
+// 現在の AppData（Phase 1 で定義済み）
 export interface AppData {
-  version: string;
   tasks: Task[];
-  lastUpdated: string;
 }
 
 export const DEFAULT_APP_DATA: AppData = {
-  version: '1.0.0',
   tasks: [],
-  lastUpdated: new Date().toISOString(),
 };
 ```
 
@@ -69,27 +65,23 @@ export const DEFAULT_APP_DATA: AppData = {
 /**
  * lib/types/index.ts
  *
- * 型定義（ミニマルスターター版）
- * SaaS版と同じ構造を維持
- *
- * Phase 2 で Settings を追加
+ * 型定義（Phase 2: Settings 追加）
  */
 
+// ========================================
 // ユーザー情報
+// ========================================
+
 export interface User {
   id: string;
   email: string;
   name: string;
 }
 
-// ダッシュボード統計
-export interface DashboardStats {
-  taskCount: number;
-  completedCount: number;
-  progressRate: number;
-}
+// ========================================
+// タスク（Phase 1 で追加）
+// ========================================
 
-// タスク
 export interface Task {
   id: string;
   title: string;
@@ -97,19 +89,23 @@ export interface Task {
   createdAt: string;
 }
 
+// ========================================
 // 設定（Phase 2 で追加）
+// ========================================
+
 export interface Settings {
   userName: string;
   theme: 'light' | 'dark' | 'system';
   notifications: boolean;
 }
 
+// ========================================
 // アプリケーションデータ（Phase 2 で settings を追加）
+// ========================================
+
 export interface AppData {
-  version: string;
   tasks: Task[];
   settings: Settings;
-  lastUpdated: string;
 }
 
 // デフォルト設定
@@ -119,13 +115,24 @@ export const DEFAULT_SETTINGS: Settings = {
   notifications: true,
 };
 
-// デフォルトデータ（Phase 2 で settings を追加）
+// デフォルトデータ
 export const DEFAULT_APP_DATA: AppData = {
-  version: '1.0.0',
   tasks: [],
   settings: DEFAULT_SETTINGS,
-  lastUpdated: new Date().toISOString(),
 };
+
+// ========================================
+// DataContext アクション型（Phase 2 で拡張）
+// ========================================
+
+export type DataAction =
+  | { type: 'SET_DATA'; payload: AppData }
+  | { type: 'ADD_TASK'; payload: Task }
+  | { type: 'TOGGLE_TASK'; payload: string }
+  | { type: 'DELETE_TASK'; payload: string }
+  | { type: 'UPDATE_SETTINGS'; payload: Partial<Settings> }
+  | { type: 'RESET_DATA' }
+  | { type: 'IMPORT_DATA'; payload: AppData };
 ```
 
 **変更ポイント**:
@@ -133,6 +140,7 @@ export const DEFAULT_APP_DATA: AppData = {
 - `AppData` に `settings` プロパティを追加
 - `DEFAULT_SETTINGS` 定数を追加
 - `DEFAULT_APP_DATA` に `settings` を追加
+- `DataAction` に `UPDATE_SETTINGS`, `RESET_DATA`, `IMPORT_DATA` を追加
 
 ---
 
@@ -140,15 +148,8 @@ export const DEFAULT_APP_DATA: AppData = {
 
 ### 2.1 現在の状態確認
 
-`lib/contexts/DataContext.tsx` の Action 定義（22-27行目）:
-
-```typescript
-type Action =
-  | { type: 'SET_DATA'; payload: AppData }
-  | { type: 'ADD_TASK'; payload: Task }
-  | { type: 'TOGGLE_TASK'; payload: string }
-  | { type: 'DELETE_TASK'; payload: string };
-```
+`lib/contexts/DataContext.tsx` では `DataAction` 型を `@/lib/types` から import しています。
+Step 1.2 で `DataAction` に新しいアクションを追加したので、DataContext の reducer を拡張します。
 
 ### 2.2 DataContext を更新
 
@@ -160,10 +161,9 @@ type Action =
 /**
  * lib/contexts/DataContext.tsx
  *
- * データコンテキスト（ミニマルスターター版）
- * localStorage でデータを永続化
- *
- * Phase 2 で設定管理とデータリセット機能を追加
+ * データ管理Context（Phase 2 で設定管理を追加）
+ * - useReducer によるステート管理
+ * - localStorage による永続化
  */
 
 import {
@@ -174,22 +174,20 @@ import {
   type ReactNode,
   type Dispatch,
 } from 'react';
-import { AppData, Task, Settings, DEFAULT_APP_DATA, DEFAULT_SETTINGS } from '@/lib/types';
+import type { AppData, DataAction } from '@/lib/types';
+import { DEFAULT_APP_DATA, DEFAULT_SETTINGS } from '@/lib/types';
+
+// ========================================
+// LocalStorage キー
+// ========================================
 
 const STORAGE_KEY = 'fdc_app_data';
 
-// Action Types（Phase 2 で UPDATE_SETTINGS, RESET_DATA, IMPORT_DATA を追加）
-type Action =
-  | { type: 'SET_DATA'; payload: AppData }
-  | { type: 'ADD_TASK'; payload: Task }
-  | { type: 'TOGGLE_TASK'; payload: string }
-  | { type: 'DELETE_TASK'; payload: string }
-  | { type: 'UPDATE_SETTINGS'; payload: Partial<Settings> }
-  | { type: 'RESET_DATA' }
-  | { type: 'IMPORT_DATA'; payload: AppData };
-
+// ========================================
 // Reducer（Phase 2 で拡張）
-function dataReducer(state: AppData, action: Action): AppData {
+// ========================================
+
+function dataReducer(state: AppData, action: DataAction): AppData {
   switch (action.type) {
     case 'SET_DATA':
       return action.payload;
@@ -220,39 +218,40 @@ function dataReducer(state: AppData, action: Action): AppData {
 
     // Phase 2 で追加
     case 'RESET_DATA':
-      return {
-        ...DEFAULT_APP_DATA,
-        lastUpdated: new Date().toISOString(),
-      };
+      return { ...DEFAULT_APP_DATA };
 
     // Phase 2 で追加
     case 'IMPORT_DATA':
-      return {
-        ...action.payload,
-        lastUpdated: new Date().toISOString(),
-      };
+      return action.payload;
 
     default:
       return state;
   }
 }
 
+// ========================================
 // Context
+// ========================================
+
 interface DataContextType {
   data: AppData;
-  dispatch: Dispatch<Action>;
+  dispatch: Dispatch<DataAction>;
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
+
+// ========================================
+// Provider
+// ========================================
 
 export function DataProvider({ children }: { children: ReactNode }) {
   const [data, dispatch] = useReducer(dataReducer, DEFAULT_APP_DATA);
 
   // 初期読み込み（Phase 2 でマイグレーション対応を追加）
   useEffect(() => {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) {
-      try {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (stored) {
         const parsed = JSON.parse(stored) as AppData;
 
         // マイグレーション: settings がない古いデータへの対応
@@ -262,16 +261,19 @@ export function DataProvider({ children }: { children: ReactNode }) {
         };
 
         dispatch({ type: 'SET_DATA', payload: migrated });
-      } catch (e) {
-        console.error('Failed to parse stored data:', e);
       }
+    } catch (error) {
+      console.error('Failed to load data from localStorage:', error);
     }
   }, []);
 
   // 変更時に保存
   useEffect(() => {
-    const toSave = { ...data, lastUpdated: new Date().toISOString() };
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    } catch (error) {
+      console.error('Failed to save data to localStorage:', error);
+    }
   }, [data]);
 
   return (
@@ -280,6 +282,10 @@ export function DataProvider({ children }: { children: ReactNode }) {
     </DataContext.Provider>
   );
 }
+
+// ========================================
+// Hook
+// ========================================
 
 export function useData() {
   const context = useContext(DataContext);
@@ -291,10 +297,9 @@ export function useData() {
 ```
 
 **変更ポイント**:
-- `Action` 型に `UPDATE_SETTINGS`, `RESET_DATA`, `IMPORT_DATA` を追加
-- `dataReducer` に対応する case を追加
-- `Settings`, `DEFAULT_SETTINGS` を import
-- マイグレーション対応（古いデータに settings を追加）
+- `DataAction` 型を `@/lib/types` から import（ローカルに再定義しない）
+- `dataReducer` に `UPDATE_SETTINGS`, `RESET_DATA`, `IMPORT_DATA` の case を追加
+- `DEFAULT_SETTINGS` を import してマイグレーション対応
 
 ---
 
@@ -405,7 +410,7 @@ export default function SettingsPage() {
         const imported = JSON.parse(content) as AppData;
 
         // バリデーション
-        if (!imported.version || !Array.isArray(imported.tasks)) {
+        if (!Array.isArray(imported.tasks)) {
           throw new Error('無効なデータ形式です');
         }
 
@@ -561,11 +566,6 @@ export default function SettingsPage() {
           </div>
         </div>
 
-        {/* 最終更新 */}
-        <p style={{ fontSize: '14px', color: 'var(--text-muted)', marginBottom: '16px' }}>
-          最終更新: {new Date(data.lastUpdated).toLocaleString('ja-JP')}
-        </p>
-
         {/* アクションボタン */}
         <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
           <button className="btn btn-secondary" onClick={handleExport}>
@@ -617,7 +617,7 @@ export default function SettingsPage() {
         <h3 className="card-title">バージョン情報</h3>
         <div style={{ fontSize: '14px' }}>
           <p style={{ marginBottom: '8px' }}>
-            <strong>FDC Modular Starter</strong> v{data.version}
+            <strong>FDC Modular Starter</strong>
           </p>
           <p style={{ color: 'var(--text-muted)', marginBottom: '8px' }}>
             学習用ミニマルスターターキット
@@ -644,26 +644,37 @@ ls -la app/\(app\)/settings/
 
 ### 4.1 現在の状態確認
 
-`app/(app)/layout.tsx` の15-19行目（Phase 1 完了後）:
+`app/(app)/layout.tsx` の NAV_ITEMS（Phase 1 完了後）:
 
 ```typescript
-const NAV_ITEMS = [
-  { href: '/dashboard', label: 'ダッシュボード' },
-  { href: '/tasks', label: 'タスク' },
-  // Phase 2 で追加: { href: '/settings', label: '設定' },
+const NAV_ITEMS: NavItem[] = [
+  { href: '/dashboard', label: 'ダッシュボード', icon: LayoutDashboard },
+  { href: '/tasks', label: 'タスク', icon: CheckSquare },
+  // Phase 2 で追加: { href: '/settings', label: '設定', icon: Settings },
 ];
 ```
 
 ### 4.2 NAV_ITEMS を更新
 
-`app/(app)/layout.tsx` の `NAV_ITEMS` を以下に変更:
+lucide-react の import に `Settings` アイコンを追加:
 
 ```typescript
-const NAV_ITEMS = [
-  { href: '/dashboard', label: 'ダッシュボード' },
-  { href: '/tasks', label: 'タスク' },
-  { href: '/settings', label: '設定' },
-  // Phase 3 で追加: { href: '/leads', label: 'リード' },
+import {
+  LayoutDashboard,
+  CheckSquare,
+  Settings,
+  LogOut,
+  type LucideIcon,
+} from 'lucide-react';
+```
+
+NAV_ITEMS に設定を追加:
+
+```typescript
+const NAV_ITEMS: NavItem[] = [
+  { href: '/dashboard', label: 'ダッシュボード', icon: LayoutDashboard },
+  { href: '/tasks', label: 'タスク', icon: CheckSquare },
+  { href: '/settings', label: '設定', icon: Settings },
 ];
 ```
 
@@ -865,12 +876,11 @@ const migrated: AppData = {
 ### Q: インポートでエラーが出る
 
 JSONファイルの形式を確認:
-- `version` プロパティが存在するか
 - `tasks` が配列であるか
+- `settings` が存在するか
 
 ```json
 {
-  "version": "1.0.0",
   "tasks": [...],
   "settings": {...}
 }
