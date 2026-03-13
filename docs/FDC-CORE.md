@@ -125,9 +125,17 @@ founders-direct-modular/
 | Phase 0 | ✅ 完了 | スターター構築（ログイン、ダッシュボード） |
 | Phase 1 | 🔜 予定 | タスクページ追加 |
 | Phase 2 | 🔜 予定 | 設定ページ追加 |
-| Phase 3 | 🔜 予定 | リード管理機能 |
-| Phase 4 | 🔜 予定 | 顧客管理機能 |
-| Phase 5 | 🔜 予定 | Supabase 統合 |
+| Phase 3 | 🔜 予定 | Supabase セットアップ |
+| Phase 4 | 🔜 予定 | Supabase Auth（認証フロー） |
+| Phase 5 | 🔜 予定 | ワークスペース + ロール |
+| Phase 6 | 🔜 予定 | リード管理（CRM） |
+| Phase 7 | 🔜 予定 | クライアント管理 |
+| Phase 8 | 🔜 予定 | アプローチ履歴 |
+| Phase 9 | 🔜 予定 | Task 4象限（3-Layer） |
+| Phase 10 | 🔜 予定 | Action Map |
+| Phase 11 | 🔜 予定 | OKR |
+| Phase 12 | 🔜 予定 | Google Calendar/Tasks 連携 |
+| Phase 13 | 🔜 予定 | Calendar 同期 |
 
 ---
 
