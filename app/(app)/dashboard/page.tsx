@@ -7,7 +7,7 @@
  * Phase 1 でタスク機能を追加します
  */
 
-import { Rocket, ArrowRight, CheckSquare, Settings, Database } from 'lucide-react';
+import { Rocket, ArrowRight, CheckSquare, Settings, Database, BookOpen } from 'lucide-react';
 
 export default function DashboardPage() {
   return (
@@ -62,7 +62,7 @@ export default function DashboardPage() {
             alignItems: 'center',
             gap: '8px',
           }}>
-            📚 次のステップ
+            <BookOpen className="inline-block mr-2 h-4 w-4" />次のステップ
           </h3>
 
           <ul style={{
