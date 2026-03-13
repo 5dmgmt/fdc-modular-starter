@@ -1,7 +1,7 @@
 /**
  * lib/types/action-map.ts
  *
- * Phase 11: Action Map 型定義
+ * Phase 10: Action Map 型定義
  * - Action Map（戦術計画）
  * - Action Item（具体タスク）
  */
