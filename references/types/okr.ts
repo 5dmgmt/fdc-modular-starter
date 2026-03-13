@@ -1,7 +1,7 @@
 /**
  * lib/types/okr.ts
  *
- * Phase 12: OKR（Objectives and Key Results）型定義
+ * Phase 11: OKR（Objectives and Key Results）型定義
  *
  * 【責務】
  * - OKR レイヤーの型定義
