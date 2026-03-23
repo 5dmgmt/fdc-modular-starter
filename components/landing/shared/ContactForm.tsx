@@ -75,7 +75,7 @@ export default function ContactForm() {
               <div className={styles.thankYouDetails}>
                 <p>
                   メールが届きましたら、<strong>そのGmail / Google Workspaceアドレスでログイン</strong>して<br />
-                  すぐにFounders Direct Cockpitをご利用いただけます。
+                  すぐにANCC Workshopをご利用いただけます。
                 </p>
                 <p className={styles.thankYouNote}>
                   ※ メールが届かない場合は、迷惑メールフォルダをご確認いただくか、<br />
@@ -95,7 +95,7 @@ export default function ContactForm() {
               <h2 className={styles.ctaTitle}>次の四半期、目標達成率を劇的に変えませんか？</h2>
               <p className={styles.ctaLead}>
                 もう、戦略が「絵に描いた餅」で終わることはありません。<br />
-                FDCで、チーム一丸となってゴールを目指す体験を。まずは無料でお試しください。
+                ANCC Workshopで、チーム一丸となってゴールを目指す体験を。まずは無料でお試しください。
               </p>
 
               <form onSubmit={handleSubmit} className={styles.ctaForm}>

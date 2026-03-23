@@ -49,8 +49,8 @@ export default function LoginPage() {
           />
         </div>
 
-        <h1>FDC Modular</h1>
-        <p>Founders Direct Cockpit - 学習用スターター</p>
+        <h1>ANCC Workshop</h1>
+        <p>ANCC Workshop - 学習用スターター</p>
 
         <div className="form-group" style={{ textAlign: 'left' }}>
           <label style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>

@@ -1,6 +1,6 @@
-# FDC Modular Starter
+# ANCC Workshop スターター
 
-Founders Direct Cockpit の学習用ミニマルスターターキットです。
+ANCC Workshop の学習用ミニマルスターターキットです。
 
 ## 技術スタック
 
@@ -26,7 +26,7 @@ npm run dev
 ## フォルダ構造
 
 ```
-fdc-modular-starter/
+ancc-workshop-starter/
 ├── app/ .................... Next.js App Router
 ├── components/ ............. UIコンポーネント
 │   └── landing/ ............ ランディングページ
@@ -203,7 +203,7 @@ npm run lint       # Lint実行（eslint .）
 
 ```
 ┌─────────────────────────────────────────┐
-│  FDC Modular Starter (本プロジェクト)    │
+│  ANCC Workshop スターター (本プロジェクト) │
 │  - ミニマル構成                          │
 │  - localStorage ベース                   │
 │  - 学習・プロトタイプ用                  │
@@ -212,7 +212,7 @@ npm run lint       # Lint実行（eslint .）
                   │ 学習後に拡張
                   ▼
 ┌─────────────────────────────────────────┐
-│  FDC SaaS (/foundersdirect)             │
+│  ANCC Workshop SaaS（フル版）            │
 │  - フル機能（OKR / ActionMap / Task）    │
 │  - Supabase PostgreSQL                  │
 │  - マルチテナント対応                    │

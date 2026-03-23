@@ -34,7 +34,7 @@ export default function LandingHeader() {
         <Link href="/" className={styles.logo}>
           <Image
             src="/apple-touch-icon.png"
-            alt="FDC"
+            alt="ANCC Workshop"
             width={32}
             height={32}
             priority

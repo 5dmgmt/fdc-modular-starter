@@ -3,8 +3,8 @@
 /**
  * components/landing/default/ServicesSection.tsx
  *
- * Founders Direct の2つのサービスを横並びで紹介するセクション
- * - Founders Direct Cockpit (FDC): 目標達成プラットフォーム
+ * ANCC の2つのサービスを横並びで紹介するセクション
+ * - ANCC Workshop: 目標達成プラットフォーム
  * - Claude Code Workshop: AI駆動開発ワークショップ
  */
 
@@ -24,11 +24,11 @@ export default function ServicesSection() {
         </div>
 
         <div className={styles.servicesGrid}>
-          {/* Founders Direct Cockpit */}
+          {/* ANCC Workshop */}
           <div className={styles.serviceCard}>
             <div className={styles.serviceHeader}>
               <div className={styles.serviceBadge}>SaaS</div>
-              <h3 className={styles.serviceName}>Founders Direct Cockpit</h3>
+              <h3 className={styles.serviceName}>ANCC Workshop</h3>
               <p className={styles.serviceTagline}>OKRから現場タスクまで一気通貫</p>
             </div>
 

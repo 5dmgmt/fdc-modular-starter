@@ -3,7 +3,7 @@
 /**
  * components/landing/default/LandingPage.tsx
  *
- * Founders Direct Cockpit ランディングページ（デフォルトテナント用）
+ * ANCC Workshop ランディングページ（デフォルトテナント用）
  * Phase 14.6.3: 各セクションをコンポーネントに分割し、ここで統合
  *
  * テナント別LP構造:
