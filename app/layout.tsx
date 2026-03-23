@@ -8,8 +8,8 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'ANCC Workshop スターター',
-  description: 'ANCC Workshop - スターター',
+  title: 'FDC Modular Starter',
+  description: 'Founders Direct Cockpit - Modular Starter',
 };
 
 export default function RootLayout({

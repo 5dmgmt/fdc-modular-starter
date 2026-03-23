@@ -1,14 +1,14 @@
 # FDC-MODULAR-GUIDE.md（v1.0 - 2025-12-06）
 
-> **ANCC Workshop スターター ガイド**
+> **Founders Direct Cockpit - Modular Starter ガイド**
 >
-> このドキュメントは、ANCC Workshop スターターの開発ガイドのインデックスです。
+> このドキュメントは、FDC Modular Starter の開発ガイドのインデックスです。
 
 ---
 
 ## 概要
 
-ANCC Workshop スターターは、SaaS版 ANCC Workshop の
+FDC Modular Starter は、SaaS版 Founders Direct Cockpit（foundersdirect）の
 学習用ミニマル版です。同じアーキテクチャ・パターンを使用しているため、
 学習後にスムーズにSaaS版の開発に移行できます。
 

@@ -1,4 +1,4 @@
-# ANCC Workshop スターター - Claude Code 設定
+# FDC Modular Starter - Claude Code 設定
 
 コーディング前にこのファイルと参照ドキュメントを確認してください。
 
@@ -9,7 +9,7 @@
 
 ## プロジェクト概要
 
-- **名称**: ANCC Workshop スターター（学習用スターター）
+- **名称**: FDC Modular Starter（学習用スターター）
 - **技術スタック**: Next.js 16.0.10 / React 19 / TypeScript 5.x
 - **Node.js**: 22.x 以上
 - **コミット前必須**: `npm run type-check && npm run lint && npm run build`
