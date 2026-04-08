@@ -257,7 +257,7 @@ CREATE TABLE workspace_members (
 
 ### アクセス制御方式
 
-- **RLS**: 無効（Supabaseの行レベルセキュリティは使用しない）
+- **RLS**: 有効（全テーブルで ENABLE ROW LEVEL SECURITY + service_role ポリシー）
 - **API**: SERVICE_ROLE_KEY でDBアクセス
 - **認証**: サーバーサイドでセッション検証
 - **認可**: API Route 内でロールチェック
@@ -324,7 +324,7 @@ invalidateSessionCache(token: string): Promise<void>
 | 14.4 | 2025-12 | 組織図権限追加、セッションキャッシュ追加 |
 | 9.97 | 2025-11 | 3レイヤー → 2レイヤーに簡素化 |
 | 9.92 | 2025-11 | SA権限体系追加 |
-| 8.x | 2025-10 | RLS実装（後に無効化） |
+| 8.x | 2025-10 | RLS実装（Phase 30902 で必須化） |
 
 ---
 

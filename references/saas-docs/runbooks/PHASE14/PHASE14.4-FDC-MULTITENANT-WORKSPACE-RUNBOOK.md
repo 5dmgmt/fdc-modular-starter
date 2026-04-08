@@ -2,7 +2,7 @@
 >
 > 1. **[FDC-CORE.md](../FDC-CORE.md)** - 開発全体の指針・技術スタック・AIチーム運用（起点）
 > 2. **[guides/DEVELOPMENT.md](../guides/DEVELOPMENT.md)** - 開発者・AI向け技術詳細ガイド
-> 3. **[specs/DB-SECURITY.md](../specs/DB-SECURITY.md)** - DBセキュリティ設計（本ランブックでRLS不使用を採用する背景理解に必要）
+> 3. **[specs/DB-SECURITY.md](../specs/DB-SECURITY.md)** - DBセキュリティ設計（RLS必須化の方針と多層防御の設計根拠）
 > 4. **[guides/SECURITY.md](../guides/SECURITY.md)** - セキュリティガイド（マルチテナント分離の設計根拠）
 
 # FDC マルチテナント＆ワークスペース ランブック v1.4
@@ -14,7 +14,7 @@
 | **対象** | FoundersDirect (`app.foundersdirect.jp`, `*.foundersdirect.jp`) |
 | **想定読者** | 実装・運用エンジニア |
 | **前提技術** | Next.js 15 (App Router), Postgres (Supabase), Vercel |
-| **設計方針** | RLS 不使用。アプリ層で分離を担保 |
+| **設計方針** | RLS 有効。service_role でサーバーサイドアクセス + アプリ層で分離を担保 |
 | **最終更新** | 2025-01 |
 
 ---
@@ -117,7 +117,7 @@ FoundersDirect(FDC) を以下の要件で運用可能にする。
 | **単一リポジトリ** | `foundersdirect` で全テナント・ワークスペースを管理 |
 | **単一 Vercel プロジェクト** | `app.foundersdirect.jp` + `*.foundersdirect.jp` を同一プロジェクトに |
 | **単一 DB (マルチテナント)** | 全業務テーブルに `tenant_id` + `workspace_id` を付与 |
-| **RLS 不使用** | スキーマ設計 + アプリ層 + テストでデータ分離を担保 |
+| **RLS 有効** | ENABLE RLS + service_role ポリシー + アプリ層 + テストでデータ分離を担保 |
 
 > **設計意図**: VIP テナント向け別プロジェクトの例外を最小化し、将来的なリポジトリ分割コストを抑制
 
@@ -150,7 +150,7 @@ Request → host header から subdomain 抽出
 | Next.js 15 / App Router 稼働 | `npm run dev` で起動確認 | [ ] |
 | DB 接続安定 | `npx prisma db pull` 成功 | [ ] |
 | GRAND-GUIDE 更新済み | `docs/FDC-GRAND-GUIDE.md` 確認 | [ ] |
-| RLS 無効 | Supabase Dashboard で確認 | [ ] |
+| RLS 有効 | Supabase Dashboard で全テーブル ENABLE RLS を確認 | [ ] |
 
 ---
 

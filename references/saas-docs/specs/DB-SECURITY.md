@@ -10,22 +10,22 @@ Founders Direct Cockpit (FDC) における RLS ポリシーの詳細を記述し
 
 ---
 
-## ⚠️ Phase 9.97 重要な変更: RLS 無効化
+## ✅ RLS 必須化（Phase 30902 適用）
 
-> **現在の状態:** Phase 9.97 以降、RLS は**無効化**されています。
-> アクセス制御はサーバーサイド（Next.js API Routes）で実装しています。
+> **現在の状態:** 全テーブルで RLS が**有効**です。
+> アクセス制御はサーバーサイド（Next.js API Routes）+ DB 層 RLS の多層防御で実装しています。
 
-### RLS 無効化の理由
+### RLS 必須化の方針
 
-1. **すべてのDB操作がサーバーサイド経由**
-   - クライアントから直接 Supabase にアクセスしない
-   - ANON_KEY はクライアント認証のみに使用
+1. **全テーブルで ENABLE ROW LEVEL SECURITY**
+   - 新テーブル作成時は必ず RLS を有効化
+   - anon キーからの直接アクセスを DB 層でブロック
 
-2. **SERVICE_ROLE_KEY を使用**
-   - RLS をバイパスして確実なデータ操作
+2. **SERVICE_ROLE_KEY でサーバーサイドアクセス**
+   - service_role は RLS をバイパスして確実なデータ操作
    - サーバーサイドでのみ使用（クライアントに露出しない）
 
-3. **認証チェックは Next.js で実装**
+3. **認証チェックは Next.js で実装（多層防御）**
    ```typescript
    // lib/server/auth.ts
    const user = await getSession(request);
@@ -903,8 +903,8 @@ SET LOCAL app.current_user_id = 'your_user_id';
 -- RLS をバイパス（スーパーユーザーのみ）
 SET ROLE postgres;
 
--- または特定テーブルの RLS を一時的に無効化
-ALTER TABLE users DISABLE ROW LEVEL SECURITY;
+-- または service_role でバイパス（RLS は無効化しない）
+SET ROLE service_role;
 ```
 
 ### パフォーマンス低下
@@ -918,22 +918,17 @@ ALTER TABLE users DISABLE ROW LEVEL SECURITY;
 
 ---
 
-## 📝 ロールバック手順
+## 📝 緊急時対応
 
-RLS を無効化する必要がある場合：
+> **重要**: RLS の無効化は禁止です。問題が発生した場合は service_role でバイパスして調査してください。
 
 ```sql
--- すべてのポリシーを削除
-DROP POLICY IF EXISTS users_select_self ON users;
-DROP POLICY IF EXISTS users_update_self ON users;
--- ... (他のポリシーも同様)
+-- 緊急時: service_role でバイパスして調査
+SET ROLE service_role;
 
--- RLS を無効化
-ALTER TABLE users DISABLE ROW LEVEL SECURITY;
-ALTER TABLE workspaces DISABLE ROW LEVEL SECURITY;
-ALTER TABLE workspace_members DISABLE ROW LEVEL SECURITY;
-ALTER TABLE workspace_data DISABLE ROW LEVEL SECURITY;
-ALTER TABLE audit_logs DISABLE ROW LEVEL SECURITY;
+-- ポリシーの一時的な緩和（調査目的のみ、調査後に元に戻す）
+-- 例: 特定テーブルのポリシーを確認
+SELECT * FROM pg_policies WHERE tablename = 'users';
 ```
 
 ---
@@ -962,8 +957,8 @@ ALTER TABLE audit_logs DISABLE ROW LEVEL SECURITY;
 |-----------|------|----------|
 | v1.0 | 2025-11-13 | 初版作成（Phase 7-12 STEP4.8）- 5テーブル 11ポリシー |
 | v1.1 | 2025-01-24 | Phase 9 完了対応（sessions テーブル追加、6テーブル 15ポリシー、Supabase移行、DB接続二重化） |
-| v1.2 | 2025-11-27 | Phase 9.97 対応（RLS 無効化、サーバーサイドアクセス制御に移行） |
-| v1.3 | 2025-12-02 | Phase 14.4 マルチテナント準備（RLS不使用の設計根拠、tenant_id分離方式追記） |
+| v1.2 | 2025-11-27 | Phase 9.97 対応（サーバーサイドアクセス制御に移行） |
+| v1.3 | 2025-12-02 | Phase 14.4 マルチテナント準備（tenant_id分離方式追記） |
 | v1.4 | 2025-12-02 | Phase 14.4 完了（セッションキャッシュ、レート制限、構造化ログ追加） |
 | v1.5 | 2025-12-02 | RLS導入トリガー＆方針セクション追加（アーキテクチャ方針の明文化） |
 | v1.6 | 2025-12-02 | Phase 14.6 対応（セッション JOIN 最適化、テナント分離レイヤー追加） |

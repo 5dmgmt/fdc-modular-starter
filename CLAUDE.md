@@ -52,3 +52,7 @@
 | `references/contexts/` | Context 参照 |
 
 「references/ui/task/ を参考にして」と指示すると、参照ファイルを読み込んで同様の実装を行います。
+
+## Security
+
+- **RLS必須** — 新テーブル作成時は必ず ENABLE ROW LEVEL SECURITY + service_role ポリシーを付与

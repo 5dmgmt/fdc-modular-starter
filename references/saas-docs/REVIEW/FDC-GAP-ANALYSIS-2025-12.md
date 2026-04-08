@@ -62,7 +62,7 @@
 | エラーマスキング | `lib/server/api-errors.ts` | 本番環境で内部エラー詳細を非公開 |
 | E2E テストモード制御 | `lib/server/test-mode.ts` | `FDC_E2E_TEST_MODE_ENABLED` + `NODE_ENV` + `VERCEL_ENV` の 3 条件チェック |
 
-**現状評価**: セキュリティ監査スコア 100/100点（Phase 14.6-J 完了後）。App 層での多層防御は十分。ただし、DB 層 RLS は SERVICE_ROLE_KEY バイパスで実質無効。
+**現状評価**: セキュリティ監査スコア 100/100点（Phase 14.6-J 完了後）。App 層での多層防御は十分。DB 層 RLS は全テーブルで有効化済み。SERVICE_ROLE_KEY でサーバーサイドアクセスしつつ、anon キーからの直接アクセスをブロック。
 
 ---
 

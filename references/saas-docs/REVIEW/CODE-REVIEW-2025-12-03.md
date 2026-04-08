@@ -35,7 +35,7 @@ Founders Direct Cockpitのコードベースを全面的にレビューした結
 │  └─ middleware.ts ..... 認証・CSP・リダイレクト            │
 ├─────────────────────────────────────────────────────────────┤
 │ データ層: Supabase PostgreSQL 17.6                         │
-│  ├─ RLS不使用 ......... SERVICE_ROLE_KEY + アプリ層制御   │
+│  ├─ RLS有効 ........... ENABLE RLS + service_role アクセス │
 │  ├─ 暗号化 ............ AES-256-GCM（2層暗号化）          │
 │  └─ キャッシュ ........ Vercel KV（セッション5分TTL）      │
 ├─────────────────────────────────────────────────────────────┤
@@ -68,7 +68,7 @@ Founders Direct Cockpitのコードベースを全面的にレビューした結
 | # | 懸念点 | 根拠 | 改善方針 |
 |---|--------|------|----------|
 | 1 | **テナント境界チェックの不完全性** | 56 APIエンドポイント中、`checkTenantBoundary()`使用は6件のみ | 全APIで統一的にバリデーション関数を適用 |
-| 2 | **RLS不使用によるリスク** | SERVICE_ROLE_KEY依存でDBレベルの防御層がない | 段階的にRLS導入を検討（Phase 15以降） |
+| 2 | **RLS有効化済み** | 全テーブルで ENABLE RLS + service_role ポリシー適用。anon キーからの直接アクセスをブロック | 多層防御として運用中 |
 | 3 | **workspace_id検証の一貫性** | 一部API（Google Sync等）でworkspace_id権限チェックなし | `validateWorkspaceAccess()`の必須化 |
 | 4 | **モノリシックなworkspace_dataテーブル** | 全ワークスペースデータを1つのJSONBカラムに格納（250KB制限） | 将来的にテーブル分割を検討 |
 | 5 | **テナント設定のカスケード複雑性** | Default→Tenant→Workspaceの3層マージロジック | `buildEffectiveConfig()`の単体テスト強化 |

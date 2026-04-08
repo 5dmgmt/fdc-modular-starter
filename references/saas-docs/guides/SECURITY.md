@@ -182,7 +182,7 @@ CREATE TABLE sessions (
 > **Phase 9.97 重要変更:**
 > - 旧 `account_type` カラムを廃止、`system_role` を3値に統一
 > - 旧 `viewer` ロールを `MEMBER` に統合
-> - RLS を無効化し、サーバーサイドでアクセス制御
+> - RLS を有効化し、service_role でサーバーサイドアクセス + anon キーからの直接アクセスをブロック
 
 ##### システムロール（users.system_role）- 3値
 | ロール | 権限 | 説明 |
@@ -502,14 +502,15 @@ await sql`SELECT * FROM users WHERE id = '${userId}'`; // 脆弱！
 
 ### 1. アクセス制御（サーバーサイドアーキテクチャ）
 
-> **Phase 9.97 更新**: RLS は無効化し、サーバーサイドでのアクセス制御に統一
+> **Phase 30902 更新**: RLS は全テーブルで有効化し、service_role でのサーバーサイドアクセス + anon キーからの直接アクセスをブロックする多層防御に統一
 
 #### 現在のアーキテクチャ
 
-**RLS無効化の理由:**
+**RLS必須化の方針:**
 - すべてのDB操作がサーバーサイド（Next.js API Routes）経由
 - クライアントから直接 Supabase にアクセスしない
-- データ操作には `SERVICE_ROLE_KEY` を使用（RLSをバイパス）
+- データ操作には `SERVICE_ROLE_KEY` を使用（service_role で RLS をバイパス）
+- anon キーからの直接アクセスは RLS でブロック（多層防御）
 
 **セキュリティ層:**
 
@@ -1387,7 +1388,7 @@ await sql`SELECT * FROM users WHERE id = '${userId}'`; // SQL インジェクシ
   - 権限システム統一（2層モデル）
   - システムロール: SA / USER / TEST（旧 account_type 廃止）
   - ワークスペースロール: OWNER / ADMIN / MEMBER（旧 viewer 統合）
-  - RLS 無効化、SERVICE_ROLE_KEY によるサーバーサイドアクセス制御
+  - RLS 有効化、SERVICE_ROLE_KEY によるサーバーサイドアクセス制御（多層防御）
 - **権限チェック関数追加**
   - `lib/utils/permissions.ts` 追加
 
@@ -1500,7 +1501,7 @@ export async function getReportsSummary(params: unknown) {
 
 **原則**: Server Components / Server Actions でも必ずサーバーサイドで権限チェックを実施
 
-> **注意**: RLS は無効化しています。SERVICE_ROLE_KEY でDBにアクセスするため、アプリケーション層での権限チェックが必須です。
+> **注意**: RLS は有効ですが、SERVICE_ROLE_KEY で RLS をバイパスしてDBにアクセスしています。アプリケーション層での権限チェックも必須です（多層防御）。
 
 ```tsx
 import { supabase } from '@/lib/server/db';

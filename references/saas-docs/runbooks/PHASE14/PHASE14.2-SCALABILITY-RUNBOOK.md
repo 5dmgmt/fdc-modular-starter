@@ -13,7 +13,7 @@
 ## 現状分析
 
 ### 技術スタック
-- **DB**: Supabase (PostgreSQL/Neon) - RLS不使用
+- **DB**: Supabase (PostgreSQL/Neon) - RLS有効（service_role でアクセス）
 - **認証**: Cookie Session + DB (sessions テーブル)
 - **キャッシュ**: Vercel KV (Upstash Redis) - レート制限のみ
 - **Google同期**: 同期処理（ブロッキング）
