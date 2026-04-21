@@ -1,6 +1,6 @@
 # FDC Modular Starter - Claude Code 設定
 
-コーディング前にこのファイルと参照ドキュメントを確認してください。
+> 共通ルールは `~/.claude/CLAUDE.md` 参照。以下はプロジェクト固有のみ。
 
 ## 必読ドキュメント
 
@@ -53,6 +53,6 @@
 
 「references/ui/task/ を参考にして」と指示すると、参照ファイルを読み込んで同様の実装を行います。
 
-## Security
+## Security（プロジェクト固有）
 
 - **RLS必須** — 新テーブル作成時は必ず ENABLE ROW LEVEL SECURITY + service_role ポリシーを付与
